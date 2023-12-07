@@ -1,8 +1,12 @@
 ## intro
 
-本仓库为针对经过fgsm和pgd攻击后的cifar10数据集的**防御算法**实现，具有较高的鲁棒性，模型为**三生网络**，设计到的方法为**集成学习EnsembleDefense**，通过结合多个模型的预测结果，以提高整体性能和鲁棒性。
+本仓库为针对经过fgsm和pgd攻击后的cifar10数据集的**防御算法**实现，具有较高的鲁棒性，模型为**三生网络**，涉及到的方法为**集成学习EnsembleDefense**，通过结合多个模型的预测结果，以提高整体性能和鲁棒性。
 
+### prepare
 
+创建`data`, `data_adv`, `data_adv_adv`文件夹分别存放原始CIFAR10数据集、对抗样本、加强的对抗样本
+
+创建`data_model`, `data_model_adv`, `data_model_f3`文件夹分别存放原始数据集训练的网络模型权重、对抗训练得到的网络模型权重、三生网络训练得到强化版的对抗训练网络模型权重
 
 ### run
 
@@ -10,7 +14,7 @@
 2. 然后用第一步训练好的网络data_model.pth作为输入，运行1_Adversary的0_generate.py生成对抗样本，存放在data_adv中
 3. 然后用第一步训练好的网络data_model.pth作为输入，使用对抗样本作为训练集和测试集，运行2_Advetraining的0_train.py生成网络模型data_model_adv.pth
 4. 再用第三步对抗训练生成的网络data_model_adv.pth运行1_Adversary的0_generate.py再生成对抗样本，存放在data_adv_adv中
-5. 最后用第二步生成的对抗样本，和第四步生成的对抗样本同时作为训练集和测试集，运行3_train_f3的0_train.py生成三成网络，保存在data_model_F3中
+5. 最后用第二步生成的对抗样本，和第四步生成的对抗样本同时作为训练集和测试集，运行3_train_f3的0_train.py生成强化版的对抗训练网络，保存在data_model_F3中
 6. 用第一步、第三步、第五步生成的网络生成三生网络同时进行决策（投票）
 
 
