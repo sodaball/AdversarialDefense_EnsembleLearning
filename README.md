@@ -1,169 +1,155 @@
-### intro
+# README
 
-本仓库为针对经过fgsm和pgd攻击后的cifar10数据集的**防御算法**实现，具有较高的鲁棒性，模型为**三生网络**，涉及到的方法为**集成学习EnsembleDefense**，通过结合多个模型的预测结果，以提高整体性能和鲁棒性。
+This repository implements **defense algorithms** for the CIFAR10 dataset after being attacked by FGSM (Fast Gradient Sign Method) and PGD (Projected Gradient Descent). The model used is the **Triplet Network**, which involves the method of **Ensemble Defense**. By combining the predictions from multiple models, we aim to enhance overall performance and robustness.
 
-### prepare
+## Preparation
 
-创建`data`, `data_adv`, `data_adv_adv`文件夹分别存放原始CIFAR10数据集、对抗样本、加强的对抗样本
+Create the following folders to store the respective datasets and models:
 
-创建`data_model`, `data_model_adv`, `data_model_f3`文件夹分别存放原始数据集训练的网络模型权重、对抗训练得到的网络模型权重、三生网络训练得到强化版的对抗训练网络模型权重
+- `data`: Original CIFAR10 dataset
+- `data_adv`: Adversarial samples
+- `data_adv_adv`: Enhanced adversarial samples
 
-### run
+- `data_model`: Weights of network models trained on the original dataset
+- `data_model_adv`: Weights of network models trained with adversarial training
+- `data_model_f3`: Weights of the enhanced adversarial training network models trained using the Triplet Network
 
-1. 首先用vgg16和cifar10数据集运行0_Learning的1_train.py和2_acc.py，生成网络模型data_model.pth
-2. 然后用第一步训练好的网络data_model.pth作为输入，运行1_Adversary的0_generate.py生成对抗样本，存放在data_adv中
-3. 然后用第一步训练好的网络data_model.pth作为输入，使用对抗样本作为训练集和测试集，运行2_Advetraining的0_train.py生成网络模型data_model_adv.pth
-4. 再用第三步对抗训练生成的网络data_model_adv.pth运行1_Adversary的0_generate.py再生成对抗样本，存放在data_adv_adv中
-5. 最后用第二步生成的对抗样本，和第四步生成的对抗样本同时作为训练集和测试集，运行3_train_f3的0_train.py生成强化版的对抗训练网络，保存在data_model_F3中
-6. 用第一步、第三步、第五步生成的网络生成三生网络同时进行决策（投票）
+## Running the Project
 
+1. First, run `1_train.py` and `2_acc.py` in the `0_Learning` directory using VGG16 and the CIFAR10 dataset to generate the network model `data_model.pth`.
+2. Then, use the trained network `data_model.pth` as input and run `0_generate.py` in the `1_Adversary` directory to generate adversarial samples, which will be stored in `data_adv`.
+3. Next, use the trained network `data_model.pth` and the adversarial samples as the training and test sets to run `0_train.py` in the `2_Advertraining` directory to generate the network model `data_model_adv.pth`.
+4. Use the adversarially trained network `data_model_adv.pth` to run `0_generate.py` in the `1_Adversary` directory again to generate more adversarial samples, which will be stored in `data_adv_adv`.
+5. Finally, use the adversarial samples generated in step 2 and step 4 as the training and test sets to run `0_train.py` in the `3_train_f3` directory to generate an enhanced adversarial training network model, which will be saved in `data_model_f3`.
+6. Use the networks generated in steps 1, 3, and 5 to form the Triplet Network for simultaneous decision-making (voting).
 
+## Results
 
-### result
+Accuracy:
 
-准确率：
-
-原始网络：
-
-* test干净样本：0.8112
-* test对抗样本：0.1549
-
-对抗训练的网络：
-
-* test干净样本：0.7527
-* test对抗样本：0.95488
-
-用`对抗样本和对抗训练网络生成的对抗样本`训练的网络：
-
-* 干净样本：0.7788
-* 对抗样本：0.96594
-
-三生网络：
-
-* test干净样本：0.8161
-* test对抗样本：0.94066
-
-
+- Original Network:
+  - Test clean samples: 0.8112
+  - Test adversarial samples: 0.1549
+- Adversarially Trained Network:
+  - Test clean samples: 0.7527
+  - Test adversarial samples: 0.95488
+- Network Trained with "Adversarial Samples and Adversarially Trained Network Generated Adversarial Samples":
+  - Clean samples: 0.7788
+  - Adversarial samples: 0.96594
+- Triplet Network:
+  - Test clean samples: 0.8161
+  - Test adversarial samples: 0.94066
 
 ## 0_Learning
 
 ### 1_train.py
 
-```python
+```bash
 python 1_train.py --data_choose 0 --model_choose 0 --save_path '../data_model/data_model.pth'
 ```
 
-用VGG16网络和CIFAR10数据集进行训练，训练好的模型结果保存在`data_model`文件夹中
+Trains a VGG16 network on the CIFAR10 dataset, and saves the trained model results in the `data_model` folder.
 
-1_train.py的结果：
+Results of `1_train.py`:
 
-<img src="0_Learning/1_train.png" alt="1_train" style="zoom:67%;" />
+![1_train](0_Learning/1_train.png)
 
 ```python
 loss: 0.30944
-训练集准确率：0.90374
-测试集准确率：0.8112
+Training set accuracy: 0.90374
+Test set accuracy: 0.8112
 ```
 
-​	2_acc.py的结果：
+Results of `2_acc.py`:
 
 ```python
-训练集准确率：0.93818
-验证集准确率：0.8112
+Training set accuracy: 0.93818
+Validation set accuracy: 0.8112
 ```
-
 
 ## 1_Adversary
 
 ### 0_generate.py
 
-选用fgsm攻击方式，eps选择0.03
+Uses the FGSM attack method with an epsilon value of 0.03.
 
-对train数据集使用fgsm：
+For the train dataset using FGSM:
 
-```python
+```bash
 python 0_generate.py --model_choose 0 --data_choose 0 --if_train True --adversary 'fgsm' --save_path '../data_model/data_model.pth' --img_path '../data_adv/adv_fgsm_0.03_train.h5py'
 ```
 
-对test数据集使用fgsm：
+For the test dataset using FGSM:
 
-```python
+```bash
 python 0_generate.py --model_choose 0 --data_choose 0 --if_train False --adversary 'fgsm' --save_path '../data_model/data_model.pth' --img_path '../data_adv/adv_fgsm_0.03_test.h5py'
 ```
 
-生成的对抗样本以`h5py`格式存放于`data_adv`文件夹中
+The generated adversarial samples are stored in the `data_adv` folder in `h5py` format.
 
 ### 2_acc.py
 
-对fgsm后的train数据集测试准确率：
+Testing the accuracy on the train dataset after FGSM:
 
-```python
+```bash
 python 2_acc.py --img_path '../data_adv/adv_fgsm_0.03_train.h5py' --save_path '../data_model/data_model.pth' --model_choose 0 --data_choose 0
 ```
 
-结果：
+Result:
 
-正确率：0.15486
+Accuracy: 0.15486
 
+Testing the accuracy on the test dataset after FGSM:
 
-
-对fgsm后的train数据集测试准确率：
-
-```python
+```bash
 python 2_acc.py --img_path '../data_adv/adv_fgsm_0.03_test.h5py' --save_path '../data_model/data_model.pth' --model_choose 0 --data_choose 0
 ```
 
-结果：
+Result:
 
-正确率：0.15492
-
-
-
-
+Accuracy: 0.15492
 
 ## 2_Advertraining
 
 ### 0_train.py
 
-使用fgsm对train和test进行攻击的对抗样本进行训练
+Trains using the adversarial samples generated by FGSM on the train and test datasets.
 
-```python
+```bash
 python 0_train.py --data_choose 0 --model_choose 0 --train_adv '../data_adv/adv_fgsm_0.03_train.h5py' --test_adv '../data_adv/adv_fgsm_0.03_test.h5py' --save_path_ori '../data_model/data_model.pth' --save_path_adv '../data_model_adv/data_model_adv.pth'
 ```
 
-使用fgsm对train和test进行攻击的对抗样本进行训练的模型保存在`data_model_adv`
+The model trained using the adversarial samples generated by FGSM is saved in `data_model_adv`.
 
-结果：
+Result:
 
 ```python
 loss: 0.22066
-训练集准确率：0.9316
-对抗样本测试集准确率：0.95488
-原始样本测试集准确率：0.75270
+Training set accuracy: 0.9316
+Adversarial sample test set accuracy: 0.95488
+Original sample test set accuracy: 0.75270
 ```
-
 
 ## 3_train_f3
 
 ### 0_train.py
 
-结果：
+Result:
 
 ```python
 loss: 0.16096
-训练集准确率：0.95075
-对抗样本测试集准确率：0.96594
-原始样本测试集准确率：0.77880
+Training set accuracy: 0.95075
+Adversarial sample test set accuracy: 0.96594
+Original sample test set accuracy: 0.77880
 ```
 
-
-<img src="3_train_f3/0_train.png" alt="0_train" style="zoom:67%;" />
+![0_train](3_train_f3/0_train.png)
 
 ### 1_acc.py
 
-结果：
+Result:
 
 ```python
-测试集干净样本准确率：0.81610
-测试集对抗样本准确率：0.94066
+Test set clean sample accuracy: 0.81610
+Test set adversarial sample accuracy: 0.94066
 ```
