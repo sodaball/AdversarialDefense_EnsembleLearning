@@ -59,11 +59,19 @@ python 1_train.py --data_choose 0 --model_choose 0 --save_path '../data_model/da
 
 <img src="0_Learning/1_train.png" alt="1_train" style="zoom:67%;" />
 
-<img src="0_Learning/1_train_1.png" alt="1_train_1" style="zoom:67%;" />
+```python
+loss: 0.30944
+训练集准确率：0.90374
+测试集准确率：0.8112
+```
 
 ​	2_acc.py的结果：
 
-<img src="0_Learning/2_acc.png" alt="2_acc" style="zoom:67%;" />
+```python
+训练集准确率：0.93818
+验证集准确率：0.8112
+```
+
 
 ## 1_Adversary
 
@@ -127,7 +135,13 @@ python 0_train.py --data_choose 0 --model_choose 0 --train_adv '../data_adv/adv_
 
 结果：
 
-<img src="2_Advetraining/0_train_1.png" alt="0_train_1" style="zoom:67%;" />
+```python
+loss: 0.22066
+训练集准确率：0.9316
+对抗样本测试集准确率：0.95488
+原始样本测试集准确率：0.75270
+```
+
 
 ## 3_train_f3
 
@@ -135,7 +149,13 @@ python 0_train.py --data_choose 0 --model_choose 0 --train_adv '../data_adv/adv_
 
 结果：
 
-<img src="3_train_f3/0_train_1.png" alt="0_train_1" style="zoom:80%;" />
+```python
+loss: 0.16096
+训练集准确率：0.95075
+对抗样本测试集准确率：0.96594
+原始样本测试集准确率：0.77880
+```
+
 
 <img src="3_train_f3/0_train.png" alt="0_train" style="zoom:67%;" />
 
@@ -143,4 +163,7 @@ python 0_train.py --data_choose 0 --model_choose 0 --train_adv '../data_adv/adv_
 
 结果：
 
-<img src="3_train_f3/1_acc.png" alt="1_acc" style="zoom:80%;" />
+```python
+测试集干净样本准确率：0.81610
+测试集对抗样本准确率：0.94066
+```
